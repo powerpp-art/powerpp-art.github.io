@@ -1,1 +1,230 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><link rel="icon" href="/favicon.ico"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="Web site created using create-react-app"/><link rel="apple-touch-icon" href="/logo192.png"/><link rel="manifest" href="/manifest.json"/><title>React App</title><link href="/static/css/2.e56df7f0.chunk.css" rel="stylesheet"><link href="/static/css/main.617b9d66.chunk.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div><script>!function(e){function r(r){for(var n,l,a=r[0],c=r[1],f=r[2],p=0,s=[];p<a.length;p++)l=a[p],Object.prototype.hasOwnProperty.call(o,l)&&o[l]&&s.push(o[l][0]),o[l]=0;for(n in c)Object.prototype.hasOwnProperty.call(c,n)&&(e[n]=c[n]);for(i&&i(r);s.length;)s.shift()();return u.push.apply(u,f||[]),t()}function t(){for(var e,r=0;r<u.length;r++){for(var t=u[r],n=!0,a=1;a<t.length;a++){var c=t[a];0!==o[c]&&(n=!1)}n&&(u.splice(r--,1),e=l(l.s=t[0]))}return e}var n={},o={1:0},u=[];function l(r){if(n[r])return n[r].exports;var t=n[r]={i:r,l:!1,exports:{}};return e[r].call(t.exports,t,t.exports,l),t.l=!0,t.exports}l.m=e,l.c=n,l.d=function(e,r,t){l.o(e,r)||Object.defineProperty(e,r,{enumerable:!0,get:t})},l.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},l.t=function(e,r){if(1&r&&(e=l(e)),8&r)return e;if(4&r&&"object"==typeof e&&e&&e.__esModule)return e;var t=Object.create(null);if(l.r(t),Object.defineProperty(t,"default",{enumerable:!0,value:e}),2&r&&"string"!=typeof e)for(var n in e)l.d(t,n,function(r){return e[r]}.bind(null,n));return t},l.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return l.d(r,"a",r),r},l.o=function(e,r){return Object.prototype.hasOwnProperty.call(e,r)},l.p="/";var a=this["webpackJsonph-react-roject"]=this["webpackJsonph-react-roject"]||[],c=a.push.bind(a);a.push=r,a=a.slice();for(var f=0;f<a.length;f++)r(a[f]);var i=c;t()}([])</script><script src="/static/js/2.40320ce1.chunk.js"></script><script src="/static/js/main.4b5aa5a5.chunk.js"></script></body></html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS 스타일 실시간 시계</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+            overflow: hidden;
+        }
+        .clock-container {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            background-color: #000;
+            border-radius: 50%;
+            border: 10px solid #000;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        .clock-face {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .tick {
+            position: absolute;
+            width: 2px;
+            height: 10px;
+            background-color: #fff;
+            top: 10px;
+            left: 50%;
+            transform-origin: 50% 140px;
+        }
+        .tick.long {
+            height: 15px;
+            background-color: #fff;
+        }
+        .number {
+            position: absolute;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 20px;
+            font-weight: 500;
+            text-align: center;
+            width: 30px;
+            height: 30px;
+            top: 50%;
+            left: 50%;
+            transform-origin: center;
+        }
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom;
+            background-color: #fff;
+            border-radius: 2px;
+        }
+        .hour-hand {
+            width: 4px;
+            height: 80px;
+        }
+        .minute-hand {
+            width: 3px;
+            height: 100px;
+        }
+        .second-hand {
+            width: 1px;
+            height: 110px;
+            background-color: #ff3b30;
+            transition: transform 0.05s linear;
+        }
+        .center-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .datetime {
+            margin-top: 20px;
+            color: #fff;
+            font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+            font-size: 24px;
+            font-weight: 400;
+            text-align: center;
+            letter-spacing: 1px;
+            display: inline-flex;
+        }
+        .datetime span {
+            display: inline-block;
+            width: 1ch;
+            text-align: center;
+        }
+        .datetime .fixed {
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <div class="clock-face" id="clock-face"></div>
+        <div class="hand hour-hand" id="hour-hand"></div>
+        <div class="hand minute-hand" id="minute-hand"></div>
+        <div class="hand second-hand" id="second-hand"></div>
+        <div class="center-dot"></div>
+    </div>
+    <div class="datetime" id="datetime"></div>
+    <script>
+        function createTicksAndNumbers() {
+            const clockFace = document.getElementById('clock-face');
+            // Create ticks
+            for (let i = 0; i < 60; i++) {
+                const tick = document.createElement('div');
+                tick.className = 'tick';
+                if (i % 5 === 0) {
+                    tick.className += ' long';
+                }
+                tick.style.transform = `rotate(${i * 6}deg)`;
+                clockFace.appendChild(tick);
+            }
+            // Create numbers 1 to 12
+            for (let i = 1; i <= 12; i++) {
+                const number = document.createElement('div');
+                number.className = 'number';
+                number.textContent = i;
+                const angle = (i * 30 - 90) * Math.PI / 180;
+                const radius = 110;
+                number.style.transform = `translate(-50%, -50%) translate(${radius * Math.cos(angle)}px, ${radius * Math.sin(angle)}px)`;
+                clockFace.appendChild(number);
+            }
+        }
+
+        function updateClockAndDate() {
+            const now = new Date();
+            const milliseconds = now.getTime();
+            const hours = now.getHours() % 12;
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds() + (now.getMilliseconds() / 1000);
+
+            const hourDeg = (hours * 30) + (minutes * 0.5);
+            const minuteDeg = minutes * 6 + (seconds / 60);
+            const secondDeg = seconds * 6;
+
+            document.getElementById('hour-hand').style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
+            document.getElementById('minute-hand').style.transform = `translateX(-50%) rotate(${minuteDeg}deg)`;
+            document.getElementById('second-hand').style.transform = `translateX(-50%) rotate(${secondDeg}deg)`;
+
+            // Update date and time display
+            const year = String(now.getFullYear());
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours24 = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            const secs = String(now.getSeconds()).padStart(2, '0');
+
+            // Create individual spans for each character
+            const datetime = document.getElementById('datetime');
+            datetime.innerHTML = `
+                <span>${year[0]}</span><span>${year[1]}</span><span>${year[2]}</span><span>${year[3]}</span>
+                <span class="fixed">.</span>
+                <span>${month[0]}</span><span>${month[1]}</span>
+                <span class="fixed">.</span>
+                <span>${day[0]}</span><span>${day[1]}</span>
+                <span class="fixed">&nbsp;</span>
+                <span>${hours24[0]}</span><span>${hours24[1]}</span>
+                <span class="fixed">:</span>
+                <span>${mins[0]}</span><span>${mins[1]}</span>
+                <span class="fixed">:</span>
+                <span>${secs[0]}</span><span>${secs[1]}</span>
+            `;
+
+            // 부드러운 초침 애니메이션을 위해 requestAnimationFrame 사용
+            requestAnimationFrame(updateClockAndDate);
+        }
+
+        createTicksAndNumbers();
+        requestAnimationFrame(updateClockAndDate);
+    </script>
+</body>
+</html>
